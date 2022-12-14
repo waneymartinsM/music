@@ -1,0 +1,78 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:get/get.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:music_flutter/controller/root_controller.dart';
+import 'package:music_flutter/ui/pages/home_page.dart';
+import 'package:music_flutter/ui/pages/library_page.dart';
+import 'package:music_flutter/ui/pages/search_page.dart';
+import 'package:music_flutter/widgets/float_player.dart';
+import 'package:music_flutter/widgets/modal_player.dart';
+import '../../controller/player_controller.dart';
+
+class RootPage extends GetView<RootController> {
+  final playerController = Get.find<PlayerController>();
+
+  RootPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Obx(
+            () => IndexedStack(
+              index: controller.tabIndex.value,
+              children: const [
+                HomePage(),
+                SearchPage(),
+                LibraryPage(),
+              ],
+            ),
+          ),
+          Obx(
+            () => Visibility(
+              visible: playerController.getCurrentSong != null,
+              child: Positioned(
+                bottom: 4,
+                left: 4,
+                right: 4,
+                child: InkWell(
+                  onTap: () => showCupertinoModalBottomSheet(
+                    context: context,
+                    expand: true,
+                    bounce: true,
+                    topRadius: const Radius.circular(16),
+                    builder: (context) => ModalPlayer(),
+                    duration: const Duration(milliseconds: 200),
+                  ),
+                  child: FloatPlayer(),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: Obx(
+        () => BottomNavigationBar(
+          currentIndex: controller.tabIndex.value,
+          onTap: (index) => controller.changeTabIndex(index),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(FeatherIcons.home),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(FeatherIcons.search),
+              label: "Buscar",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(FeatherIcons.bookOpen),
+              label: "Biblioteca",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
